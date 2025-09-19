@@ -1,1404 +1,721 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Premium | Sistema Exclusivo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* Contenedor principal de cliente */
-        #client-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        
-        .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        
-        input[type="text"] {
-            text-transform: uppercase;
-        }
-        
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        
-        .error { color: #e74c3c; }
-        .success { color: #27ae60; }
-        .warning { color: #f39c12; }
-        .info { color: #3498db; }
-        
-        /* Panel de administración */
-        .admin-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #f5f7fa;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        
-        .admin-header {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .admin-nav {
-            background: #34495e;
-            padding: 0.5rem 2rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .nav-btn {
-            background: transparent;
-            border: none;
-            color: #ecf0f1;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-            width: auto;
-        }
-        
-        .nav-btn:hover, .nav-btn.active {
-            background: #3498db;
-        }
-        
-        .admin-content {
-            padding: 2rem;
-        }
-        
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
-        
-        .card-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .card.active { border-top: 4px solid #2ecc71; }
-        .card.inactive { border-top: 4px solid #e74c3c; }
-        .card.devices { border-top: 4px solid #3498db; }
-        .card.usage { border-top: 4px solid #f39c12; }
-        
-        .admin-section {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            color: #2c3e50;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .section-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .code-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-        
-        .code-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #2ecc71;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .code-item.inactive {
-            border-left-color: #e74c3c;
-        }
-        
-        .code-info {
-            flex: 1;
-            width: 100%;
-        }
-        
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        
-        .code-value {
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .code-name {
-            font-weight: 500;
-            color: #2c3e50;
-            margin-bottom: 0.3rem;
-        }
-        
-        .code-contact {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-bottom: 0.5rem;
-        }
-        
-        .code-stats {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .code-actions {
-            display: flex;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: flex-end;
-        }
-        
-        .action-btn {
-            padding: 0.4rem 0.6rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .btn-activate {
-            background: #2ecc71;
-            color: white;
-        }
-        
-        .btn-deactivate {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .btn-edit {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-info {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .device-list {
-            display: grid;
-            gap: 1rem;
-        }
-        
-        .device-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .device-info {
-            flex: 1;
-        }
-        
-        .device-id {
-            font-weight: bold;
-            margin-bottom: 0.3rem;
-        }
-        
-        .device-meta {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-        }
-        
-        .admin-login {
-            display: none;
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .admin-link {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: #2c3e50;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-size: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .filters {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 6px;
-        }
-        
-        .search-box {
-            margin-bottom: 1.5rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .search-box input {
-            flex: 1;
-            margin: 0;
-        }
-        
-        .search-box button {
-            width: auto;
-            margin: 0;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .status-active {
-            background: #e8f5e9;
-            color: #2ecc71;
-        }
-        
-        .status-inactive {
-            background: #ffebee;
-            color: #e74c3c;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #7f8c8d;
-        }
-        
-        .detail-row {
-            display: flex;
-            margin-bottom: 0.5rem;
-        }
-        
-        .detail-label {
-            font-weight: 500;
-            width: 120px;
-            color: #7f8c8d;
-        }
-        
-        .detail-value {
-            flex: 1;
-        }
-        
-        .detail-section {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .detail-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .code-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filters {
-                grid-template-columns: 1fr;
-            }
-            
-            .admin-nav {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Premium | Sistema Exclusivo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase App (el núcleo de Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* Contenedor principal de cliente */
+        #client-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        input[type="text"] {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .error { color: #e53e3e; }
+        .success { color: #38a169; }
+        .warning { color: #dd6b20; }
+        .info { color: #3182ce; }
+        
+        .admin-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4a5568;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .admin-link:hover {
+            background: #2d3748;
+            transform: scale(1.1);
+        }
+        
+        /* Estilos para el panel de administración */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f7fa;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .admin-header {
+            background: linear-gradient(to right, #4a5568, #2d3748);
+            color: white;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-nav {
+            background: #2d3748;
+            padding: 0.8rem 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .admin-content {
+            padding: 2rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .admin-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.8rem 1rem;
+            }
+            
+            .admin-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-        <div id="client-container" style="display: flex;">
-        <div class="container">
-            <h1>🔒 Acceso al Sistema</h1>
-            <form id="access-form">
-                <input type="text" id="code" placeholder="Ej: A1B2" required maxlength="4" pattern="[A-Z0-9]{4}" title="4 letras/números (mayúsculas)">
-                <button type="submit">INGRESAR</button>
-            </form>
-            <p id="message" class="error"></p>
-            <p id="device-info" class="info"></p>
-            <p class="warning"><small>Horario de soporte: <strong>10:00 AM - 4:00 PM</strong></small></p>
-            <p><small>¿Problemas? Contacta a soporte: <strong>0412-527-8450</strong></small></p>
-        </div>
-        
-                <a href="#" class="admin-link" id="admin-access">
-            <i class="fas fa-cog"></i>
-        </a>
-    </div>
+    <!-- Interfaz principal para clientes -->
+    <div id="client-container">
+        <div class="container">
+            <h1><i class="fas fa-lock"></i> Acceso al Sistema Premium</h1>
+            <form id="access-form">
+                <input 
+                    type="text" 
+                    id="code" 
+                    placeholder="Ej: A1B2" 
+                    required
+                    maxlength="4"
+                    pattern="[A-Z0-9]{4}"
+                    title="4 letras/números (mayúsculas)"
+                >
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> INGRESAR</button>
+            </form>
+            <p id="message" class="error"></p>
+            <p id="device-info" class="info"></p>
+            <div class="warning">
+                <p><small><i class="fas fa-clock"></i> Horario de soporte: <strong>10:00 AM - 4:00 PM</strong></small></p>
+                <p><small><i class="fas fa-phone"></i> ¿Problemas? Contacta a soporte: <strong>0412-527-8450</strong></small></p>
+            </div>
+        </div>
+        
+        <!-- Enlace flotante para acceder al panel de administración -->
+        <a href="#" class="admin-link" id="admin-access">
+            <i class="fas fa-cog"></i>
+        </a>
+    </div>
 
-        <div class="admin-login" id="admin-login">
-        <h2><i class="fas fa-lock"></i> Acceso Administrador</h2>
-        <form id="admin-login-form">
-            <div class="form-group">
-                <label for="admin-user-login">Usuario:</label>
-                <input type="text" id="admin-user-login" placeholder="Usuario" required>
-            </div>
-            <div class="form-group">
-                <label for="admin-password-login">Contraseña:</label>
-                <input type="password" id="admin-password-login" placeholder="Contraseña" required>
-            </div>
-            <button type="submit"><i class="fas fa-sign-in-alt"></i> ACCEDER</button>
-        </form>
-        <p id="admin-message" class="error"></p>
-    </div>
+    <!-- Panel de login para administradores -->
+    <div class="admin-login" id="admin-login" style="display: none; max-width: 400px; margin: 100px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <h2 style="text-align: center; margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> Acceso Administrador</h2>
+        <form id="admin-login-form">
+            <div style="margin-bottom: 1rem; text-align: left;">
+                <label for="admin-user" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Usuario:</label>
+                <input type="text" id="admin-user" placeholder="Usuario" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div style="margin-bottom: 1rem; text-align: left;">
+                <label for="admin-password" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Contraseña:</label>
+                <input type="password" id="admin-password" placeholder="Contraseña" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%;"><i class="fas fa-sign-in-alt"></i> ACCEDER</button>
+        </form>
+        <p id="admin-message" class="error" style="margin-top: 1rem;"></p>
+    </div>
 
-        <div class="admin-panel" id="admin-panel">
-        <div class="admin-header">
-            <h2><i class="fas fa-shield-alt"></i> Panel de Administración</h2>
-            <button id="logout-btn" class="nav-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-        </div>
-        
-        <div class="admin-nav">
-            <button class="nav-btn active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-            <button class="nav-btn" data-tab="codes"><i class="fas fa-key"></i> Códigos</button>
-            <button class="nav-btn" data-tab="devices"><i class="fas fa-laptop"></i> Dispositivos</button>
-            <button class="nav-btn" data-tab="settings"><i class="fas fa-cog"></i> Configuración</button>
-        </div>
-        
-        <div class="admin-content">
-                        <div class="tab-content active" id="dashboard">
-                <h2 class="section-title">Resumen del Sistema</h2>
-                
-                <div class="dashboard-cards">
-                    <div class="card active">
-                        <div class="card-icon"><i class="fas fa-check-circle"></i></div>
-                        <div class="card-title">Códigos Activos</div>
-                        <div class="card-value" id="stat-active">0</div>
-                    </div>
-                    <div class="card inactive">
-                        <div class="card-icon"><i class="fas fa-times-circle"></i></div>
-                        <div class="card-title">Códigos Inactivos</div>
-                        <div class="card-value" id="stat-inactive">0</div>
-                    </div>
-                    <div class="card devices">
-                        <div class="card-icon"><i class="fas fa-laptop"></i></div>
-                        <div class="card-title">Dispositivos Registrados</div>
-                        <div class="card-value" id="stat-devices">0</div>
-                    </div>
-                    <div class="card usage">
-                        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-                        <div class="card-title">Uso Promedio</div>
-                        <div class="card-value" id="stat-usage">0%</div>
-                    </div>
-                </div>
-                
-                <div class="admin-section">
-                    <h3 class="section-title">Códigos Recientes</h3>
-                    <div class="code-grid" id="recent-codes"></div>
-                </div>
-            </div>
-            
-                        <div class="tab-content" id="codes">
-                <h2 class="section-title">Gestión de Códigos de Acceso</h2>
-                <div class="admin-section">
-                    <div class="filters">
-                        <div class="form-group">
-                            <label>Estado:</label>
-                            <select id="filter-status">
-                                <option value="">Todos</option>
-                                <option value="active">Activos</option>
-                                <option value="inactive">Inactivos</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Dispositivos:</label>
-                            <select id="filter-devices">
-                                <option value="">Todos</option>
-                                <option value="full">Llenos</option>
-                                <option value="available">Con espacio</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Ordenar por:</label>
-                            <select id="filter-sort">
-                                <option value="recent">Más recientes</option>
-                                <option value="oldest">Más antiguos</option>
-                                <option value="name">Nombre</option>
-                                <option value="code">Código</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="search-box">
-                        <input type="text" id="code-search" placeholder="Buscar por código, nombre, teléfono...">
-                        <button id="search-btn"><i class="fas fa-search"></i></button>
-                        <button id="clear-search" class="action-btn btn-deactivate"><i class="fas fa-times"></i> Limpiar</button>
-                    </div>
-                    <div class="section-actions">
-                        <button id="generate-code-btn" class="action-btn btn-activate">
-                            <i class="fas fa-plus"></i> Generar Nuevo Código
-                        </button>
-                    </div>
-                    <div class="code-grid" id="all-codes"></div>
-                </div>
-            </div>
-            
-                        <div class="tab-content" id="devices">
-                <h2 class="section-title">Dispositivos Registrados</h2>
-                <div class="admin-section">
-                    <div class="form-group">
-                        <label>Filtrar por código:</label>
-                        <select id="code-selector">
-                            <option value="">Todos los dispositivos</option>
-                        </select>
-                    </div>
-                    <div class="device-list" id="devices-list"></div>
-                </div>
-            </div>
-            
-                        <div class="tab-content" id="settings">
-                <h2 class="section-title">Configuración del Sistema</h2>
-                <div class="admin-section">
-                    <h3 class="section-title">Límites del Sistema</h3>
-                    <div class="form-group">
-                        <label>Límite de dispositivos por código:</label>
-                        <input type="number" id="max-devices" value="3" min="1" max="10">
-                    </div>
-                    <div class="form-group">
-                        <label>Tiempo de inactividad (minutos):</label>
-                        <input type="number" id="inactivity-timeout" value="10" min="1" max="60">
-                    </div>
-                    <div class="form-group">
-                        <label>URL de redirección:</label>
-                        <input type="text" id="redirect-url" placeholder="https://ejemplo.com">
-                    </div>
-                    <button id="save-settings" class="action-btn btn-activate"><i class="fas fa-save"></i> Guardar Configuración</button>
-                </div>
-                <div class="admin-section">
-                    <h3 class="section-title">Credenciales de Administrador</h3>
-                    <div class="form-group">
-                        <label>Usuario:</label>
-                        <input type="text" id="admin-username-settings" placeholder="Usuario administrador">
-                    </div>
-                    <div class="form-group">
-                        <label>Nueva Contraseña:</label>
-                        <input type="password" id="admin-password-settings" placeholder="Dejar en blanco para no cambiar">
-                    </div>
-                    <div class="form-group">
-                        <label>Confirmar contraseña:</label>
-                        <input type="password" id="admin-password-confirm" placeholder="Confirmar nueva contraseña">
-                    </div>
-                    <button id="save-admin" class="action-btn btn-activate"><i class="fas fa-save"></i> Guardar Credenciales</button>
-                </div>
-                <div class="admin-section">
-                    <h3 class="section-title">Exportar/Importar Datos</h3>
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <button id="export-data" class="action-btn btn-edit"><i class="fas fa-download"></i> Exportar Datos</button>
-                        <button id="import-data" class="action-btn btn-edit"><i class="fas fa-upload"></i> Importar Datos</button>
-                        <button id="reset-data" class="action-btn btn-deactivate"><i class="fas fa-trash"></i> Restablecer Datos</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Panel de administración -->
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-header">
+            <h2><i class="fas fa-shield-alt"></i> Panel de Administración</h2>
+            <button id="logout-btn" class="nav-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+        
+        <div class="admin-nav">
+            <button class="nav-btn active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+            <button class="nav-btn" data-tab="codes"><i class="fas fa-key"></i> Códigos</button>
+            <button class="nav-btn" data-tab="devices"><i class="fas fa-laptop"></i> Dispositivos</button>
+            <button class="nav-btn" data-tab="settings"><i class="fas fa-cog"></i> Configuración</button>
+        </div>
+        
+        <div class="admin-content">
+            <!-- Loading indicator -->
+            <div class="loading" id="admin-loading">
+                <div class="loading-spinner"></div>
+                <p>Cargando datos del sistema...</p>
+            </div>
+            
+            <!-- Dashboard -->
+            <div class="tab-content active" id="dashboard">
+                <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem; color: #2c3e50; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">Resumen del Sistema</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #2ecc71;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #2ecc71;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #2c3e50;">Códigos Activos</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #3498db;" id="stat-active">0</div>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #e74c3c;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #e74c3c;">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #2c3e50;">Códigos Inactivos</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #3498db;" id="stat-inactive">0</div>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #3498db;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #3498db;">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem; color: #2c3e50;">Dispositivos Registrados</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #3498db;" id="stat-devices">0</div>
+                    </div>
+                </div>
+                
+                <div style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; color: #2c3e50; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">Códigos Recientes</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;" id="recent-codes">
+                        <p>Cargando códigos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="modal" id="code-detail-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Detalles del Código</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div id="code-detail-content"></div>
-        </div>
-    </div>
+    <script>
+        // 🔥 Configuración de Firebase - REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO
+        const firebaseConfig = {
+            apiKey: "AIzaSyDc8tUu6Zsx7AqZSrxe5SwpDkem3esdNxw",
+            authDomain: "sistema-acceso-d6bfd.firebaseapp.com",
+            projectId: "sistema-acceso-d6bfd",
+            storageBucket: "sistema-acceso-d6bfd.firebasestorage.app",
+            messagingSenderId: "802239933617",
+            appId: "1:802239933617:web:48d4fbd6185f30cfc2c690"
+        };
 
-        <div class="modal" id="code-edit-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="code-edit-title">Nuevo Código</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="edit-code">Código:</label>
-                <input type="text" id="edit-code" maxlength="4" pattern="[A-Z0-9]{4}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-name">Nombre del cliente:</label>
-                <input type="text" id="edit-name">
-            </div>
-            <div class="form-group">
-                <label for="edit-phone">Teléfono:</label>
-                <input type="text" id="edit-phone">
-            </div>
-            <div class="form-group">
-                <label for="edit-email">Email:</label>
-                <input type="email" id="edit-email">
-            </div>
-            <div class="form-group">
-                <label for="edit-notes">Notas:</label>
-                <textarea id="edit-notes" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="edit-status">Estado:</label>
-                <select id="edit-status">
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                </select>
-            </div>
-            <button id="save-code-btn" class="action-btn btn-activate">Guardar Código</button>
-        </div>
-    </div>
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        // 🔐 Configuración de Seguridad
+        const SECURITY_CONFIG = {
+            MAX_DEVICES: 3,
+            INACTIVITY_TIMEOUT: 10 * 60 * 1000,
+            REDIRECT_URL: "https://clientes.calculadoramagica.lat/",
+            ADMIN_USER: "admin",
+            ADMIN_PASSWORD: "admin123"
+        };
 
-    <script>
-        // TODO: Reemplaza esto con la configuración de tu proyecto Firebase
-        // Puedes encontrar esta configuración en la consola de Firebase > Configuración del proyecto > Tus apps > App web
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY_AQUI", // ¡Importante! Pega tu clave API web aquí
-            authDomain: "sistema-acceso-d6bfd.firebaseapp.com",
-            databaseURL: "https://sistema-acceso-d6bfd-default-rtdb.firebaseio.com",
-            projectId: "sistema-acceso-d6bfd",
-            storageBucket: "sistema-acceso-d6bfd.appspot.com",
-            messagingSenderId: "802239933617",
-            appId: "TU_APP_ID_AQUI" // ¡Importante! Pega tu ID de aplicación aquí
-        };
+        // 🛡️ Sistema de Seguridad con Firebase
+        class CodeSecuritySystem {
+            constructor() {
+                this.initSessionProtection();
+                this.checkExistingSession();
+            }
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+            // 🔄 Generar ID de dispositivo único
+            generateDeviceId() {
+                const storedId = localStorage.getItem('secureDeviceId');
+                if (storedId) return storedId;
 
-        // 🔐 Configuración de Seguridad (ahora cargada desde Firebase)
-        const SECURITY_CONFIG = {
-            MAX_DEVICES: 3,
-            INACTIVITY_TIMEOUT: 10 * 60 * 1000,
-            CODE_VALIDATION_DELAY: 800,
-            SALT: "xQ9#pL2$kM5&vR1",
-            REDIRECT_URL: "https://luishparedes.github.io/massiel/",
-            ADMIN_USER: "admin",
-            ADMIN_PASSWORD: "admin123"
-        };
-        
-        // 🛡️ Sistema de Seguridad Mejorado con Firebase
-        class CodeSecuritySystem {
-            constructor() {
-                this.initSessionProtection();
-                this.checkExistingSession();
-            }
-            
-            async loadConfig() {
-                const snapshot = await database.ref('config').once('value');
-                const dbConfig = snapshot.val();
-                if (dbConfig) {
-                    SECURITY_CONFIG.MAX_DEVICES = dbConfig.maxDevices || SECURITY_CONFIG.MAX_DEVICES;
-                    SECURITY_CONFIG.INACTIVITY_TIMEOUT = (dbConfig.inactivityTimeout || 10) * 60 * 1000;
-                    SECURITY_CONFIG.REDIRECT_URL = dbConfig.redirectUrl || SECURITY_CONFIG.REDIRECT_URL;
-                    SECURITY_CONFIG.ADMIN_USER = dbConfig.adminUser || SECURITY_CONFIG.ADMIN_USER;
-                    SECURITY_CONFIG.ADMIN_PASSWORD = dbConfig.adminPassword || SECURITY_CONFIG.ADMIN_PASSWORD;
-                } else {
-                    // Si no hay config en DB, la creamos con los valores por defecto
-                    await this.updateSettings({
-                        maxDevices: SECURITY_CONFIG.MAX_DEVICES,
-                        inactivityTimeout: SECURITY_CONFIG.INACTIVITY_TIMEOUT / (60 * 1000),
-                        redirectUrl: SECURITY_CONFIG.REDIRECT_URL,
-                        adminUser: SECURITY_CONFIG.ADMIN_USER,
-                        adminPassword: SECURITY_CONFIG.ADMIN_PASSWORD
-                    });
-                }
-            }
+                const deviceId = 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+                localStorage.setItem('secureDeviceId', deviceId);
+                return deviceId;
+            }
 
-            generateDeviceId() {
-                let storedId = localStorage.getItem('secureDeviceId');
-                if (storedId) return storedId;
-                const fingerprint = [navigator.userAgent, navigator.hardwareConcurrency, screen.width, screen.height, navigator.deviceMemory, SECURITY_CONFIG.SALT].join('|');
-                const deviceId = this.hashString(fingerprint) + '-' + Date.now().toString(36);
-                localStorage.setItem('secureDeviceId', deviceId);
-                return deviceId;
-            }
+            // ✅ Validar código de acceso
+            async validateAccessCode(code) {
+                try {
+                    const codeDoc = await db.collection('codes').doc(code).get();
+                    
+                    if (!codeDoc.exists || !codeDoc.data().active) {
+                        return { valid: false, error: "Código no válido" };
+                    }
 
-            hashString(str) {
-                let hash = 5381;
-                for (let i = 0; i < str.length; i++) {
-                    hash = (hash * 33) ^ str.charCodeAt(i);
-                }
-                return (hash >>> 0).toString(36);
-            }
+                    const registration = await this.registerDevice(code);
+                    if (!registration.success) {
+                        return { valid: false, error: registration.reason };
+                    }
 
-            async getRegisteredDevices(code) {
-                const snapshot = await database.ref(`codes/${code}/devices`).once('value');
-                const devices = snapshot.val() || {};
-                return Object.values(devices);
-            }
+                    // Establecer sesión válida
+                    localStorage.setItem('currentValidCode', code);
+                    sessionStorage.setItem('activeSessionToken', 'valid-' + Date.now());
+                    
+                    return { valid: true, isNewDevice: registration.isNew };
+                } catch (error) {
+                    console.error("Error validando código:", error);
+                    return { valid: false, error: "Error del sistema" };
+                }
+            }
 
-            async registerDevice(code) {
-                const deviceId = this.generateDeviceId();
-                const devices = await this.getRegisteredDevices(code);
+            // ➕ Registrar nuevo dispositivo
+            async registerDevice(code) {
+                const deviceId = this.generateDeviceId();
+                
+                try {
+                    const codeRef = db.collection('codes').doc(code);
+                    const codeDoc = await codeRef.get();
+                    
+                    if (!codeDoc.exists) {
+                        return { success: false, reason: "Código no válido" };
+                    }
+                    
+                    const codeData = codeDoc.data();
+                    const devices = codeData.devices || [];
+                    
+                    // Verificar si ya está registrado
+                    if (devices.some(dev => dev.id === deviceId)) {
+                        return { success: true, isNew: false };
+                    }
 
-                if (devices.some(dev => dev.id === deviceId)) {
-                    // Actualizar lastAccess
-                    await database.ref(`codes/${code}/devices/${deviceId}/lastAccess`).set(Date.now());
-                    return { success: true, isNew: false };
-                }
+                    // Verificar límite de dispositivos
+                    if (devices.length >= SECURITY_CONFIG.MAX_DEVICES) {
+                        return { success: false, reason: "Límite de dispositivos alcanzado" };
+                    }
 
-                if (devices.length >= SECURITY_CONFIG.MAX_DEVICES) {
-                    return { success: false, reason: "Límite de dispositivos alcanzado" };
-                }
+                    // Registrar nuevo dispositivo
+                    devices.push({
+                        id: deviceId,
+                        timestamp: Date.now(),
+                        ua: navigator.userAgent.substring(0, 120),
+                        lastAccess: Date.now()
+                    });
 
-                const newDevice = {
-                    id: deviceId,
-                    timestamp: Date.now(),
-                    ua: navigator.userAgent.substring(0, 120),
-                    lastAccess: Date.now()
-                };
-                
-                await database.ref(`codes/${code}/devices/${deviceId}`).set(newDevice);
-                return { success: true, isNew: true };
-            }
-            
-            initSessionProtection() {
-                const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-                events.forEach(evt => document.addEventListener(evt, this.resetInactivityTimer.bind(this)));
-                this.resetInactivityTimer();
-            }
+                    // Actualizar en Firebase
+                    await codeRef.update({
+                        devices: devices,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    return { success: true, isNew: true };
+                } catch (error) {
+                    console.error("Error registrando dispositivo:", error);
+                    return { success: false, reason: "Error del sistema" };
+                }
+            }
 
-            resetInactivityTimer() {
-                clearTimeout(this.inactivityTimer);
-                this.inactivityTimer = setTimeout(() => this.handleInactiveSession(), SECURITY_CONFIG.INACTIVITY_TIMEOUT);
-            }
+            // 🔍 Verificar sesión existente
+            async checkExistingSession() {
+                const savedCode = localStorage.getItem('currentValidCode');
+                const sessionToken = sessionStorage.getItem('activeSessionToken');
+                
+                if (savedCode && sessionToken) {
+                    try {
+                        const devices = await this.getRegisteredDevices(savedCode);
+                        const deviceId = this.generateDeviceId();
+                        
+                        if (devices.some(dev => dev.id === deviceId)) {
+                            // ✅ Redirigir al enlace
+                            setTimeout(() => {
+                                window.location.href = SECURITY_CONFIG.REDIRECT_URL;
+                            }, 500);
+                        }
+                    } catch (error) {
+                        console.error("Error verificando sesión:", error);
+                    }
+                }
+            }
 
-            handleInactiveSession() {
-                sessionStorage.removeItem('activeSessionToken');
-                if (localStorage.getItem('currentValidCode')) {
-                    window.location.href = window.location.pathname;
-                }
-            }
+            // 🏷️ Obtener dispositivos registrados
+            async getRegisteredDevices(code) {
+                try {
+                    const codeDoc = await db.collection('codes').doc(code).get();
+                    if (codeDoc.exists) {
+                        return codeDoc.data().devices || [];
+                    }
+                    return [];
+                } catch (error) {
+                    console.error("Error obteniendo dispositivos:", error);
+                    return [];
+                }
+            }
 
-            async checkExistingSession() {
-                const savedCode = localStorage.getItem('currentValidCode');
-                const sessionToken = sessionStorage.getItem('activeSessionToken');
-                if (savedCode && sessionToken) {
-                    await this.loadConfig();
-                    const devices = await this.getRegisteredDevices(savedCode);
-                    const deviceId = this.generateDeviceId();
-                    if (devices.some(dev => dev.id === deviceId)) {
-                        setTimeout(() => { window.location.href = SECURITY_CONFIG.REDIRECT_URL; }, 500);
-                    }
-                }
-            }
+            // ℹ️ Obtener información de dispositivos registrados
+            async getDeviceRegistrationInfo(code) {
+                try {
+                    const devices = await this.getRegisteredDevices(code);
+                    const currentDeviceId = this.generateDeviceId();
+                    
+                    const isCurrentRegistered = devices.some(dev => dev.id === currentDeviceId);
+                    const availableSlots = SECURITY_CONFIG.MAX_DEVICES - devices.length;
+                    
+                    return {
+                        isRegistered: isCurrentRegistered,
+                        registeredDevices: devices.length,
+                        maxDevices: SECURITY_CONFIG.MAX_DEVICES,
+                        availableSlots: availableSlots > 0 ? availableSlots : 0
+                    };
+                } catch (error) {
+                    console.error("Error obteniendo información de dispositivo:", error);
+                    return {
+                        isRegistered: false,
+                        registeredDevices: 0,
+                        maxDevices: SECURITY_CONFIG.MAX_DEVICES,
+                        availableSlots: SECURITY_CONFIG.MAX_DEVICES
+                    };
+                }
+            }
+        }
 
-            async validateAccessCode(code) {
-                return new Promise(async (resolve) => {
-                    setTimeout(async () => {
-                        await this.loadConfig();
-                        const snapshot = await database.ref(`codes/${code}`).once('value');
-                        const codeData = snapshot.val();
+        // 👨‍💼 Sistema de Administración
+        class AdminSystem {
+            constructor(securitySystem) {
+                this.securitySystem = securitySystem;
+                this.initAdminEvents();
+            }
+            
+            initAdminEvents() {
+                // Enlace flotante para acceder al login de administración
+                document.getElementById('admin-access').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('client-container').style.display = 'none';
+                    document.getElementById('admin-login').style.display = 'block';
+                });
+                
+                // Login de administrador
+                document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleAdminLogin();
+                });
+                
+                // Cerrar sesión
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    this.handleAdminLogout();
+                });
+            }
+            
+            async handleAdminLogin() {
+                const username = document.getElementById('admin-user').value;
+                const password = document.getElementById('admin-password').value;
+                
+                if (username === SECURITY_CONFIG.ADMIN_USER && password === SECURITY_CONFIG.ADMIN_PASSWORD) {
+                    document.getElementById('admin-login').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    this.loadAdminData();
+                } else {
+                    document.getElementById('admin-message').textContent = 'Credenciales incorrectas';
+                }
+            }
+            
+            handleAdminLogout() {
+                document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('client-container').style.display = 'flex';
+                document.getElementById('admin-user').value = '';
+                document.getElementById('admin-password').value = '';
+                document.getElementById('admin-message').textContent = '';
+            }
+            
+            async loadAdminData() {
+                try {
+                    document.getElementById('admin-loading').style.display = 'block';
+                    
+                    const codes = await this.getAllCodes();
+                    const activeCodes = codes.filter(code => code.active).length;
+                    const inactiveCodes = codes.filter(code => !code.active).length;
+                    const totalDevices = codes.reduce((sum, code) => sum + code.devices, 0);
+                    
+                    // Actualizar estadísticas
+                    document.getElementById('stat-active').textContent = activeCodes;
+                    document.getElementById('stat-inactive').textContent = inactiveCodes;
+                    document.getElementById('stat-devices').textContent = totalDevices;
+                    
+                    // Cargar códigos recientes (últimos 5)
+                    const recentCodes = codes
+                        .sort((a, b) => b.created - a.created)
+                        .slice(0, 5);
+                    
+                    const recentCodesContainer = document.getElementById('recent-codes');
+                    recentCodesContainer.innerHTML = '';
+                    
+                    if (recentCodes.length === 0) {
+                        recentCodesContainer.innerHTML = '<p>No hay códigos registrados</p>';
+                    } else {
+                        recentCodes.forEach(codeData => {
+                            const codeElement = this.createCodeElement(codeData);
+                            recentCodesContainer.appendChild(codeElement);
+                        });
+                    }
+                    
+                    document.getElementById('admin-loading').style.display = 'none';
+                } catch (error) {
+                    console.error("Error cargando dashboard:", error);
+                    document.getElementById('admin-loading').style.display = 'none';
+                }
+            }
+            
+            async getAllCodes() {
+                try {
+                    const snapshot = await db.collection('codes').get();
+                    const codes = [];
+                    
+                    snapshot.forEach(doc => {
+                        const codeData = doc.data();
+                        codes.push({
+                            code: doc.id,
+                            active: codeData.active || false,
+                            devices: codeData.devices ? codeData.devices.length : 0,
+                            created: codeData.created ? codeData.created.toDate() : new Date(),
+                            name: codeData.name || '',
+                            phone: codeData.phone || '',
+                            email: codeData.email || ''
+                        });
+                    });
+                    
+                    return codes;
+                } catch (error) {
+                    console.error("Error obteniendo códigos:", error);
+                    return [];
+                }
+            }
+            
+            createCodeElement(codeData) {
+                const codeElement = document.createElement('div');
+                codeElement.style.background = '#f8f9fa';
+                codeElement.style.borderRadius = '6px';
+                codeElement.style.padding = '1rem';
+                codeElement.style.borderLeft = `4px solid ${codeData.active ? '#2ecc71' : '#e74c3c'}`;
+                
+                const createdDate = new Date(codeData.created).toLocaleDateString();
+                
+                codeElement.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div style="font-weight: bold; font-size: 1.2rem;">${codeData.code}</div>
+                        <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; background: ${codeData.active ? '#e8f5e9' : '#ffebee'}; color: ${codeData.active ? '#2ecc71' : '#e74c3c'};">
+                            ${codeData.active ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </div>
+                    ${codeData.name ? `<div style="font-weight: 500; color: #2c3e50; margin-bottom: 0.3rem;">${codeData.name}</div>` : ''}
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">
+                        <span>${codeData.devices}/${SECURITY_CONFIG.MAX_DEVICES} dispositivos</span>
+                        <span>• Creado: ${createdDate}</span>
+                    </div>
+                `;
+                
+                return codeElement;
+            }
+        }
 
-                        if (!codeData || !codeData.active) {
-                            resolve({ valid: false, error: "Código no válido o inactivo" });
-                            return;
-                        }
+        // 🚀 Inicialización del Sistema
+        document.addEventListener('DOMContentLoaded', () => {
+            const securitySystem = new CodeSecuritySystem();
+            const adminSystem = new AdminSystem(securitySystem);
+            
+            const accessForm = document.getElementById('access-form');
+            const codeInput = document.getElementById('code');
+            const messageEl = document.getElementById('message');
+            const deviceInfoEl = document.getElementById('device-info');
 
-                        const registration = await this.registerDevice(code);
-                        if (!registration.success) {
-                            resolve({ valid: false, error: registration.reason });
-                            return;
-                        }
+            // 🖊️ Manejar entrada de código
+            codeInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                
+                if (this.value.length === 4) {
+                    securitySystem.getDeviceRegistrationInfo(this.value).then(info => {
+                        updateDeviceInfoDisplay(info);
+                    });
+                } else {
+                    deviceInfoEl.textContent = '';
+                }
+            });
 
-                        localStorage.setItem('currentValidCode', code);
-                        sessionStorage.setItem('activeSessionToken', this.hashString(Date.now().toString()));
-                        resolve({ valid: true, isNewDevice: registration.isNew });
-                    }, SECURITY_CONFIG.CODE_VALIDATION_DELAY);
-                });
-            }
-            
-            async getDeviceRegistrationInfo(code) {
-                await this.loadConfig();
-                const devices = await this.getRegisteredDevices(code);
-                const currentDeviceId = this.generateDeviceId();
-                const isCurrentRegistered = devices.some(dev => dev.id === currentDeviceId);
-                const availableSlots = SECURITY_CONFIG.MAX_DEVICES - devices.length;
-                return {
-                    isRegistered: isCurrentRegistered,
-                    registeredDevices: devices.length,
-                    maxDevices: SECURITY_CONFIG.MAX_DEVICES,
-                    availableSlots: availableSlots > 0 ? availableSlots : 0
-                };
-            }
+            // 📋 Mostrar información de dispositivos
+            function updateDeviceInfoDisplay(info) {
+                if (!info || info.registeredDevices === 0) {
+                    deviceInfoEl.textContent = '';
+                    return;
+                }
 
-            // Métodos para el panel de administración
-            async getAllCodes() {
-                const snapshot = await database.ref('codes').once('value');
-                const allCodesData = snapshot.val() || {};
-                return Object.entries(allCodesData).map(([code, data]) => {
-                    const devices = data.devices ? Object.values(data.devices) : [];
-                    return {
-                        code: code,
-                        active: data.active || false,
-                        devices: devices.length,
-                        created: new Date(data.created || 0),
-                        lastAccess: devices.length > 0 ? new Date(Math.max(...devices.map(d => d.lastAccess || d.timestamp))) : null,
-                        ...(data.clientInfo || { name: '', phone: '', email: '', notes: '' })
-                    };
-                });
-            }
-            
-            async saveClientInfo(code, info) {
-                await database.ref(`codes/${code}/clientInfo`).set(info);
-            }
-            
-            async setCodeStatus(code, active) {
-                await database.ref(`codes/${code}/active`).set(active);
-                return true;
-            }
-            
-            async removeDevice(code, deviceId) {
-                await database.ref(`codes/${code}/devices/${deviceId}`).remove();
-                return true;
-            }
-            
-            async generateNewCode() {
-                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let newCode = '';
-                
-                while (true) {
-                    newCode = '';
-                    for (let i = 0; i < 4; i++) {
-                        newCode += characters.charAt(Math.floor(Math.random() * characters.length));
-                    }
-                    const snapshot = await database.ref(`codes/${newCode}`).once('value');
-                    if (!snapshot.exists()) break;
-                }
-                
-                await database.ref(`codes/${newCode}`).set({
-                    active: true,
-                    created: new Date().toISOString(),
-                    clientInfo: { name: '', phone: '', email: '', notes: '' }
-                });
-                
-                return newCode;
-            }
-            
-            async getDevicesByCode(code) {
-                if (!code) {
-                    const allCodes = await this.getAllCodes();
-                    let allDevices = [];
-                    for(const codeData of allCodes) {
-                        const devices = await this.getRegisteredDevices(codeData.code);
-                        allDevices.push(...devices.map(d => ({...d, code: codeData.code, clientName: codeData.name})));
-                    }
-                    return allDevices;
-                }
-                const devices = await this.getRegisteredDevices(code);
-                const clientSnapshot = await database.ref(`codes/${code}/clientInfo`).once('value');
-                const clientName = clientSnapshot.val()?.name || '';
-                return devices.map(d => ({...d, code: code, clientName: clientName}));
-            }
-            
-            async updateSettings(newSettings) {
-                await database.ref('config').update(newSettings);
-                await this.loadConfig(); // Recargar la configuración local
-                return true;
-            }
-            
-            async exportData() {
-                const snapshot = await database.ref().once('value');
-                return JSON.stringify(snapshot.val(), null, 2);
-            }
-            
-            async importData(jsonData) {
-                try {
-                    const data = JSON.parse(jsonData);
-                    await database.ref().set(data);
-                    return true;
-                } catch (e) {
-                    console.error("Error importing data:", e);
-                    return false;
-                }
-            }
-            
-            async resetData() {
-                if (confirm('¿ESTÁ SEGURO? Esta acción reemplazará TODOS los datos en Firebase con la lista de códigos original. No se puede deshacer.')) {
-                    await database.ref('codes').remove();
-                    await seedInitialData();
-                    return true;
-                }
-                return false;
-            }
-        }
+                if (info.isRegistered) {
+                    deviceInfoEl.innerHTML = `✅ Este dispositivo está registrado<br>
+                                            <small>Dispositivos: ${info.registeredDevices}/${info.maxDevices}</small>`;
+                    deviceInfoEl.className = 'success';
+                } else if (info.availableSlots > 0) {
+                    deviceInfoEl.innerHTML = `⚠️ Este código tiene ${info.registeredDevices} de ${info.maxDevices} dispositivos<br>
+                                            <small>Aún puedes registrar ${info.availableSlots} más</small>`;
+                    deviceInfoEl.className = 'warning';
+                } else {
+                    deviceInfoEl.innerHTML = `❌ Límite de dispositivos alcanzado<br>
+                                            <small>Este código ya tiene ${info.maxDevices} dispositivos registrados</small>`;
+                    deviceInfoEl.className = 'error';
+                }
+            }
 
-        // 👨‍💼 Sistema de Administración
-        class AdminSystem {
-            constructor(securitySystem) {
-                this.securitySystem = securitySystem;
-                this.currentCode = null;
-                this.initAdminEvents();
-            }
-            
-            async loadSettings() {
-                await this.securitySystem.loadConfig();
-                document.getElementById('max-devices').value = SECURITY_CONFIG.MAX_DEVICES;
-                document.getElementById('inactivity-timeout').value = SECURITY_CONFIG.INACTIVITY_TIMEOUT / (60 * 1000);
-                document.getElementById('redirect-url').value = SECURITY_CONFIG.REDIRECT_URL;
-                document.getElementById('admin-username-settings').value = SECURITY_CONFIG.ADMIN_USER;
-            }
-            
-            initAdminEvents() {
-                document.getElementById('admin-access').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('client-container').style.display = 'none';
-                    document.getElementById('admin-login').style.display = 'block';
-                });
-                document.getElementById('admin-login-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleAdminLogin();
-                });
-                document.getElementById('logout-btn').addEventListener('click', () => this.handleAdminLogout());
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab)));
-                document.getElementById('generate-code-btn').addEventListener('click', () => this.generateNewCode());
-                document.getElementById('code-selector').addEventListener('change', (e) => this.loadDevices(e.target.value));
-                document.getElementById('search-btn').addEventListener('click', () => this.applyFilters());
-                document.getElementById('clear-search').addEventListener('click', () => {
-                    document.getElementById('code-search').value = '';
-                    this.applyFilters();
-                });
-                document.getElementById('filter-status').addEventListener('change', () => this.applyFilters());
-                document.getElementById('filter-devices').addEventListener('change', () => this.applyFilters());
-                document.getElementById('filter-sort').addEventListener('change', () => this.applyFilters());
-                document.getElementById('save-settings').addEventListener('click', () => this.saveSettings());
-                document.getElementById('save-admin').addEventListener('click', () => this.saveAdminCredentials());
-                document.getElementById('export-data').addEventListener('click', () => this.exportData());
-                document.getElementById('import-data').addEventListener('click', () => this.importData());
-                document.getElementById('reset-data').addEventListener('click', () => this.resetData());
-                document.getElementById('save-code-btn').addEventListener('click', () => this.saveCode());
-                document.querySelectorAll('.close-modal, .modal').forEach(el => el.addEventListener('click', (e) => {
-                    if (e.target === el) {
-                        document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
-                    }
-                }));
-            }
-            
-            async handleAdminLogin() {
-                await this.securitySystem.loadConfig();
-                const username = document.getElementById('admin-user-login').value;
-                const password = document.getElementById('admin-password-login').value;
-                
-                if (username === SECURITY_CONFIG.ADMIN_USER && password === SECURITY_CONFIG.ADMIN_PASSWORD) {
-                    document.getElementById('admin-login').style.display = 'none';
-                    document.getElementById('admin-panel').style.display = 'block';
-                    await this.loadAdminData();
-                } else {
-                    document.getElementById('admin-message').textContent = 'Credenciales incorrectas';
-                }
-            }
-            
-            handleAdminLogout() {
-                document.getElementById('admin-panel').style.display = 'none';
-                document.getElementById('client-container').style.display = 'flex';
-                document.getElementById('admin-user-login').value = '';
-                document.getElementById('admin-password-login').value = '';
-                document.getElementById('admin-message').textContent = '';
-            }
-            
-            async switchTab(tabName) {
-                document.querySelectorAll('.tab-content, .nav-btn').forEach(el => el.classList.remove('active'));
-                document.getElementById(tabName).classList.add('active');
-                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-                
-                if (tabName === 'codes') await this.loadCodes();
-                else if (tabName === 'devices') { await this.loadCodeSelector(); await this.loadDevices(); }
-                else if (tabName === 'dashboard') await this.loadDashboard();
-                else if (tabName === 'settings') await this.loadSettings();
-            }
-            
-            async loadAdminData() {
-                await this.loadDashboard();
-                await this.loadCodeSelector();
-            }
-            
-            async loadDashboard() {
-                const codes = await this.securitySystem.getAllCodes();
-                const activeCodes = codes.filter(c => c.active).length;
-                const totalDevices = codes.reduce((sum, code) => sum + code.devices, 0);
-                const usagePercentage = codes.length > 0 ? Math.round((totalDevices / (codes.length * SECURITY_CONFIG.MAX_DEVICES)) * 100) : 0;
-                
-                document.getElementById('stat-active').textContent = activeCodes;
-                document.getElementById('stat-inactive').textContent = codes.length - activeCodes;
-                document.getElementById('stat-devices').textContent = totalDevices;
-                document.getElementById('stat-usage').textContent = `${usagePercentage}%`;
-                
-                const recentCodes = codes.sort((a, b) => b.created - a.created).slice(0, 5);
-                this.displayCodes(recentCodes, 'recent-codes');
-            }
-            
-            async loadCodes() {
-                await this.applyFilters();
-            }
-            
-            async applyFilters() {
-                let codes = await this.securitySystem.getAllCodes();
-                const status = document.getElementById('filter-status').value;
-                const devices = document.getElementById('filter-devices').value;
-                const sort = document.getElementById('filter-sort').value;
-                const search = document.getElementById('code-search').value.toLowerCase();
+            // 🎯 Manejar envío del formulario
+            accessForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const code = codeInput.value.trim();
+                
+                // Validación básica
+                if (code.length !== 4 || !/^[A-Z0-9]{4}$/.test(code)) {
+                    showMessage("❌ El código debe tener exactamente 4 caracteres alfanuméricos", "error");
+                    return;
+                }
 
-                if (status) codes = codes.filter(c => c.active === (status === 'active'));
-                if (devices === 'full') codes = codes.filter(c => c.devices >= SECURITY_CONFIG.MAX_DEVICES);
-                if (devices === 'available') codes = codes.filter(c => c.devices < SECURITY_CONFIG.MAX_DEVICES);
-                if (search) codes = codes.filter(c => c.code.toLowerCase().includes(search) || (c.name && c.name.toLowerCase().includes(search)) || (c.phone && c.phone.includes(search)) || (c.email && c.email.toLowerCase().includes(search)));
-                
-                codes.sort((a, b) => {
-                    if (sort === 'recent') return b.created - a.created;
-                    if (sort === 'oldest') return a.created - b.created;
-                    if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
-                    if (sort === 'code') return a.code.localeCompare(b.code);
-                    return 0;
-                });
-                
-                this.displayCodes(codes, 'all-codes');
-            }
-            
-            displayCodes(codes, containerId) {
-                const container = document.getElementById(containerId);
-                container.innerHTML = codes.length > 0 ? '' : '<p>No se encontraron códigos</p>';
-                codes.forEach(codeData => container.appendChild(this.createCodeElement(codeData)));
-            }
-            
-            createCodeElement(codeData) {
-                const el = document.createElement('div');
-                el.className = `code-item ${codeData.active ? '' : 'inactive'}`;
-                
-                const created = codeData.created.toLocaleDateString();
-                const lastAccess = codeData.lastAccess ? codeData.lastAccess.toLocaleDateString() : 'Nunca';
-                
-                el.innerHTML = `
-                    <div class="code-info">
-                        <div class="code-header">
-                            <div class="code-value">${codeData.code}</div>
-                            <span class="status-badge ${codeData.active ? 'status-active' : 'status-inactive'}">${codeData.active ? 'Activo' : 'Inactivo'}</span>
-                        </div>
-                        ${codeData.name ? `<div class="code-name">${codeData.name}</div>` : ''}
-                        ${codeData.phone ? `<div class="code-contact">📞 ${codeData.phone}</div>` : ''}
-                        <div class="code-stats">
-                            <span>${codeData.devices}/${SECURITY_CONFIG.MAX_DEVICES} disp.</span>
-                            <span>• Creado: ${created}</span>
-                            ${codeData.lastAccess ? `<span>• Acceso: ${lastAccess}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="code-actions">
-                        <button class="action-btn btn-info"><i class="fas fa-info"></i></button>
-                        <button class="action-btn btn-edit"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn ${codeData.active ? 'btn-deactivate' : 'btn-activate'}"><i class="fas ${codeData.active ? 'fa-ban' : 'fa-check'}"></i></button>
-                    </div>`;
-                el.querySelector('.btn-info').onclick = () => this.showCodeDetails(codeData.code);
-                el.querySelector('.btn-edit').onclick = () => this.showCodeEditModal(codeData.code);
-                el.querySelector(codeData.active ? '.btn-deactivate' : '.btn-activate').onclick = () => this.toggleCodeStatus(codeData.code, !codeData.active);
-                return el;
-            }
-            
-            async loadCodeSelector() {
-                const codes = (await this.securitySystem.getAllCodes()).filter(c => c.active && c.devices > 0);
-                const selector = document.getElementById('code-selector');
-                selector.innerHTML = '<option value="">Todos los dispositivos</option>';
-                codes.forEach(c => selector.innerHTML += `<option value="${c.code}">${c.code} - ${c.name || 'Sin nombre'} (${c.devices})</option>`);
-            }
-            
-            async loadDevices(codeFilter = '') {
-                const devices = await this.securitySystem.getDevicesByCode(codeFilter);
-                const container = document.getElementById('devices-list');
-                container.innerHTML = devices.length > 0 ? '' : '<p>No se encontraron dispositivos</p>';
-                devices.forEach(dev => {
-                    const el = document.createElement('div');
-                    el.className = 'device-item';
-                    el.innerHTML = `
-                        <div class="device-info">
-                            <div class="device-id">Código: ${dev.code} ${dev.clientName ? `- ${dev.clientName}`: ''}</div>
-                            <div class="device-id">ID: ${dev.id}</div>
-                            <div class="device-meta">Registrado: ${new Date(dev.timestamp).toLocaleString()}</div>
-                        </div>
-                        <div class="code-actions"><button class="action-btn btn-deactivate"><i class="fas fa-trash"></i></button></div>`;
-                    el.querySelector('.btn-deactivate').onclick = () => this.removeDevice(dev.code, dev.id);
-                    container.appendChild(el);
-                });
-            }
-            
-            async showCodeDetails(code) {
-                const codeData = (await this.securitySystem.getAllCodes()).find(c => c.code === code);
-                if (!codeData) return;
-                const devices = await this.securitySystem.getRegisteredDevices(code);
-                let devicesHTML = devices.length > 0 ? devices.map(d => `<div class="detail-row"><div class="detail-label">Dispositivo:</div><div class="detail-value">${d.id}</div></div>`).join('') : '<p>No hay dispositivos</p>';
-                document.getElementById('code-detail-content').innerHTML = `
-                    <div class="detail-section">
-                        <div class="detail-row"><div class="detail-label">Código:</div><div class="detail-value">${codeData.code}</div></div>
-                        <div class="detail-row"><div class="detail-label">Cliente:</div><div class="detail-value">${codeData.name || 'N/A'}</div></div>
-                    </div>
-                    <div class="detail-section"><h4>Dispositivos Registrados</h4>${devicesHTML}</div>`;
-                document.getElementById('code-detail-modal').style.display = 'flex';
-            }
-            
-            async showCodeEditModal(code = null) {
-                this.currentCode = code;
-                document.getElementById('code-edit-title').textContent = code ? 'Editar Código' : 'Nuevo Código';
-                document.getElementById('edit-code').disabled = !!code;
-                if (code) {
-                    const codeData = (await this.securitySystem.getAllCodes()).find(c => c.code === code);
-                    document.getElementById('edit-code').value = codeData.code;
-                    document.getElementById('edit-name').value = codeData.name || '';
-                    document.getElementById('edit-phone').value = codeData.phone || '';
-                    document.getElementById('edit-email').value = codeData.email || '';
-                    document.getElementById('edit-notes').value = codeData.notes || '';
-                    document.getElementById('edit-status').value = codeData.active ? 'active' : 'inactive';
-                } else {
-                    ['edit-code', 'edit-name', 'edit-phone', 'edit-email', 'edit-notes'].forEach(id => document.getElementById(id).value = '');
-                    document.getElementById('edit-status').value = 'active';
-                }
-                document.getElementById('code-edit-modal').style.display = 'flex';
-            }
-            
-            async saveCode() {
-                const code = document.getElementById('edit-code').value.toUpperCase();
-                if (!/^[A-Z0-9]{4}$/.test(code)) return alert('Código inválido');
-                
-                const info = {
-                    name: document.getElementById('edit-name').value,
-                    phone: document.getElementById('edit-phone').value,
-                    email: document.getElementById('edit-email').value,
-                    notes: document.getElementById('edit-notes').value
-                };
-                const status = document.getElementById('edit-status').value === 'active';
+                showMessage("🔒 Verificando código...", "info");
+                
+                const result = await securitySystem.validateAccessCode(code);
+                
+                if (result.valid) {
+                    showMessage("✅ Acceso concedido...", "success");
+                    // ✅ Redirigir al enlace
+                    setTimeout(() => {
+                        window.location.href = SECURITY_CONFIG.REDIRECT_URL;
+                    }, 1500);
+                } else {
+                    showMessage(`❌ ${result.error}`, "error");
+                }
+            });
 
-                await this.securitySystem.saveClientInfo(code, info);
-                await this.securitySystem.setCodeStatus(code, status);
-                if (!this.currentCode) {
-                    await database.ref(`codes/${code}/created`).set(new Date().toISOString());
-                }
-                
-                alert('Código guardado');
-                document.getElementById('code-edit-modal').style.display = 'none';
-                await this.loadAdminData();
-                await this.loadCodes();
-            }
-            
-            async toggleCodeStatus(code, activate) {
-                await this.securitySystem.setCodeStatus(code, activate);
-                alert(`Código ${activate ? 'activado' : 'desactivado'}`);
-                await this.loadAdminData();
-                await this.loadCodes();
-            }
-            
-            async removeDevice(code, deviceId) {
-                if (confirm('¿Eliminar este dispositivo?')) {
-                    await this.securitySystem.removeDevice(code, deviceId);
-                    alert('Dispositivo eliminado');
-                    await this.loadAdminData();
-                    await this.loadDevices(document.getElementById('code-selector').value);
-                }
-            }
-            
-            async generateNewCode() {
-                const newCode = await this.securitySystem.generateNewCode();
-                await this.showCodeEditModal(newCode);
-            }
-            
-            async saveSettings() {
-                const settings = {
-                    maxDevices: parseInt(document.getElementById('max-devices').value),
-                    inactivityTimeout: parseInt(document.getElementById('inactivity-timeout').value),
-                    redirectUrl: document.getElementById('redirect-url').value
-                };
-                await this.securitySystem.updateSettings(settings);
-                alert('Configuración guardada');
-            }
-            
-            async saveAdminCredentials() {
-                const username = document.getElementById('admin-username-settings').value;
-                const password = document.getElementById('admin-password-settings').value;
-                const confirm = document.getElementById('admin-password-confirm').value;
-                if (!username) return alert('El usuario no puede estar vacío');
-                if (password !== confirm) return alert('Las contraseñas no coinciden');
-                
-                const creds = { adminUser: username };
-                if (password) creds.adminPassword = password;
-                await this.securitySystem.updateSettings(creds);
-                alert('Credenciales guardadas');
-                document.getElementById('admin-password-settings').value = '';
-                document.getElementById('admin-password-confirm').value = '';
-            }
-            
-            async exportData() {
-                const data = await this.securitySystem.exportData();
-                const blob = new Blob([data], { type: 'application/json' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `backup-sistema-acceso.json`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }
-            
-            importData() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = e => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = async (event) => {
-                        if (await this.securitySystem.importData(event.target.result)) {
-                            alert('Datos importados correctamente');
-                            await this.loadAdminData();
-                        } else alert('Error al importar');
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            }
-            
-            async resetData() {
-                if (await this.securitySystem.resetData()) {
-                    alert('Datos restablecidos');
-                    await this.loadAdminData();
-                }
-            }
-        }
-        
-        // Función para poblar la base de datos si está vacía
-        async function seedInitialData() {
-            const snapshot = await database.ref('codes').once('value');
-            if (!snapshot.exists()) {
-                console.log("Base de datos vacía, poblando con datos iniciales...");
-                const initialCodes = "Q9R1,P9M4,Y0Q5,X9P4,W8O3,V7N2,U6M1,T5L0,V4W8,S4K9,R3J8,Q2I7,D2E6,P1H6,J5O9,U4W8,J4B9,O0G5,N9F4,M8E3,L7D2,N0O4,K6C1,J5B0,I4A9,U2Z6,J0K4,H3Z8,I7A3,T7Y1,F1X6,Q6S0,E0W5,D9V4,C8U3,A6S1,G2Y7,Z5R0,X8Y2,Y4Q9,Q9R1,W207,X3P8,G9K4,S9U3,V1N6,U0M5,T9L4,J3M7,S8K3,R7J2,Q6I1,P5H9,O4G9,N3F8,M2E7,L1D6,K0C5,J9B4,I8A3,H7Z2,G6Y1,F5X0,E4W9,D3V8,C2U7,B1T6,A0S5,Z9R4,Y8Q3,X7P2,K5M9,J3L7".split(',');
-                const updates = {};
-                for (const code of [...new Set(initialCodes)]) { // Eliminar duplicados
-                    updates[code] = {
-                        active: true,
-                        created: new Date().toISOString()
-                    };
-                }
-                await database.ref('codes').set(updates);
-                console.log("Datos iniciales guardados en Firebase.");
-            }
-        }
-
-        // 🚀 Inicialización del Sistema
-        document.addEventListener('DOMContentLoaded', async () => {
-            await seedInitialData();
-            
-            const securitySystem = new CodeSecuritySystem();
-            const adminSystem = new AdminSystem(securitySystem);
-            
-            const accessForm = document.getElementById('access-form');
-            const codeInput = document.getElementById('code');
-            const messageEl = document.getElementById('message');
-            const deviceInfoEl = document.getElementById('device-info');
-
-            codeInput.addEventListener('input', async function() {
-                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                deviceInfoEl.textContent = this.value.length === 4 ? 'Consultando...' : '';
-                if (this.value.length === 4) {
-                    const info = await securitySystem.getDeviceRegistrationInfo(this.value);
-                    updateDeviceInfoDisplay(info);
-                }
-            });
-
-            function updateDeviceInfoDisplay(info) {
-                if (info.isRegistered) {
-                    deviceInfoEl.innerHTML = `✅ Dispositivo registrado (${info.registeredDevices}/${info.maxDevices})`;
-                    deviceInfoEl.className = 'success';
-                } else if (info.availableSlots > 0) {
-                    deviceInfoEl.innerHTML = `⚠️ Quedan ${info.availableSlots} espacios de ${info.maxDevices}`;
-                    deviceInfoEl.className = 'warning';
-                } else {
-                    deviceInfoEl.innerHTML = `❌ Límite de dispositivos alcanzado (${info.maxDevices})`;
-                    deviceInfoEl.className = 'error';
-                }
-            }
-
-            accessForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const code = codeInput.value.trim();
-                if (!/^[A-Z0-9]{4}$/.test(code)) return showMessage("❌ El código debe ser de 4 caracteres", "error");
-
-                showMessage("🔒 Verificando código...", "info");
-                const result = await securitySystem.validateAccessCode(code);
-                
-                if (result.valid) {
-                    showMessage("✅ Acceso concedido...", "success");
-                    setTimeout(() => { window.location.href = SECURITY_CONFIG.REDIRECT_URL; }, 1500);
-                } else {
-                    showMessage(`❌ ${result.error}`, "error");
-                }
-            });
-
-            function showMessage(text, type) {
-                messageEl.textContent = text;
-                messageEl.className = type;
-            }
-        });
-    </script>
+            // 💬 Mostrar mensajes de estado
+            function showMessage(text, type) {
+                messageEl.innerHTML = text;
+                messageEl.className = type;
+            }
+        });
+    </script>
 </body>
 </html>
